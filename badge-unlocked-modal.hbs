@@ -1,0 +1,52 @@
+<!--suppress HtmlUnknownTarget -->
+<div class="modal badge-unlocked-modal fade" tabindex="-1" role="dialog" aria-labelledby="badgeUnlocked">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-decorator-outer"></div>
+            <div class="modal-decorator-inner"></div>
+            <div class="modal-header text-center">
+                <h4 class="modal-badge-title">{{__ "Congratulations"}}</h4>
+                <h5 class="modal-badge-title">{{__ "New badge unlocked"}}</h5>
+            </div>
+            <div class="modal-body text-center">
+                <!-- Here comes the dynamic content -->
+                {{{getUnlockedBadges user}}}
+            </div> <!-- /.modal-body -->
+
+            <div class="modal-footer text-center">
+                <div class="row btn-container">
+                    <a class="modal-badge-check-button" href="/user/profile/#badges">{{__ "Check badges"}}</a>
+                    <a class="modal-badge-continue-button" data-dismiss="modal">{{__ "Continue"}}</a>
+                </div>
+            </div> <!-- /.modal-footer -->
+        </div>
+    </div>
+</div>
+
+<!-- ======== BADGE ACHIEVED MODAL SCRIPTS ======== -->
+<script>
+    var badge_modal = $(".badge-unlocked-modal");
+    badge_modal.on('shown.bs.modal', function() {
+        $('.modal-backdrop').addClass('modal-backdrop-pink');
+    });
+    badge_modal.on('hidden.bs.modal', function() {
+        $('.modal-backdrop').remove('modal-backdrop-pink');
+    });
+
+    $(function () {
+        if ('{{hasNewBadges user}}' === 'true') {
+            $('.badge-unlocked-modal').modal('show');
+            $.ajax({
+                url: "/navigation/clean-new-badges",
+                type: "GET",
+                error: function (error) {
+                    console.error(error);
+                },
+                success: function (data) {
+                    if (data.status) { console.log('New badges were unlocked!'); }
+                }
+            });
+        }
+    });
+</script>
+<!-- ======== /BADGE ACHIEVED MODAL SCRIPTS ======== -->

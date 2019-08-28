@@ -1,0 +1,208 @@
+<div class="container content">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="row">
+                <div class="page-header">
+                    <h1>{{ pageTitle }}</h1>
+                </div>
+            </div>
+
+            {{>subscription-details}}
+
+            <div class="row">
+                <h3>{{__ "Your personal data"}}</h3>
+                <div class="col-sm-12">
+                    <div class="well subscription-well">
+                        <div class="form-horizontal">
+                            <div class="form-group row">
+
+                               {{#if @root.user.isAdmin }}
+                                <div class="col-sm-12">
+                                    <p class="text-muted">
+                                        {{__ "You are logged in as %s %s" user.personalData.familyName user.personalData.givenName }} | {{user.personalData.email}}<br>
+                                        {{__ "Viewing profile of %s %s" viewedUser.personalData.familyName viewedUser.personalData.givenName }}
+                                    </p>
+                                </div>
+                               {{/if}}
+
+                                <div class="col-sm-6">
+                                    <label for="">{{__ "Name:"}}</label>
+                                </div>
+                                <div class="col-sm-6">
+                                    <p class="text-muted">
+                                            {{user.personalData.familyName}} {{user.personalData.givenName}}<br>
+                                    </p>
+                                </div>
+                                <div class="col-sm-6">
+                                    <label for="">{{__ "Email:"}}</label>
+                                </div>
+                                <div class="col-sm-6">
+                                    <p class="text-muted">
+                                        {{#if @root.user.isAdmin }}
+                                            {{# if viewedUser.slack.email }}{{viewedUser.slack.email}}<br>{{/if}}
+                                            {{# if viewedUser.local.email }}{{viewedUser.local.email}}<br>{{/if}}
+                                            {{# if viewedUser.github.email }}{{viewedUser.github.email}}<br>{{/if}}
+                                            {{# if viewedUser.facebook.email }}{{viewedUser.facebook.email}}<br>{{/if}}
+                                            {{# if viewedUser.google.email }}{{viewedUser.google.email}}<br>{{/if}}
+                                        {{else}}
+                                            {{# if user.slack.email }}{{user.slack.email}}<br>{{/if}}
+                                            {{# if user.local.email }}{{user.local.email}}<br>{{/if}}
+                                            {{# if user.github.email }}{{user.github.email}}<br>{{/if}}
+                                            {{# if user.facebook.email }}{{user.facebook.email}}<br>{{/if}}
+                                            {{# if user.google.email }}{{user.google.email}}<br>{{/if}}
+                                        {{/if}}
+                                    </p>
+                                    {{#if user.isEmailConfirmed}}
+                                    <p class="text-muted">
+                                        {{__ "Your email is confirmed." }}
+                                    </p>
+                                    {{/if}}
+                                </div>
+                            </div>
+                            {{#unless user.isEmailConfirmed}}
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <p class="text-center"><a class="btn btn-lg btn-primary" href="/user/confirm-email">{{__ "Send confirmation email" }}</a></p>
+                                </div>
+                            </div>
+                            {{/unless}}
+                        </div>
+                    </div> <!-- /.well -->
+                </div> <!-- /.col-md-12 -->
+            </div> <!-- /.row -->
+
+            <div class="row" id="badges">
+                <div class="col-md-12">
+                    {{#if completedBadges}}
+                    <h3>{{__ "Unlocked badges"}}</h3>
+                        {{#each completedBadges}}
+                            <div class="row badge-box badge-box-unlocked">
+                                <img src="{{image}}" class="badge-img-unlocked col-md-3" alt="Badge">
+                                <div class="col-md-9 badge-box-texts">
+                                    <div class="badge-name">{{name}}</div>
+                                    {{#unless isHidden}}
+                                        <div class="badge-task">{{task}}</div>
+                                    {{/unless}}
+                                    <div class="badge-flavor">{{flavorText}}</div>
+                                </div>
+                                <div class="badge-progress">{{getCompletedBadgeProgress id}}</div>
+                            </div>
+                        {{/each}}
+                    {{/if}}
+                    {{#if badgesInProgress}}
+                        <h3>{{__ "Badges in progress"}}</h3>
+                        {{#each badgesInProgress}}
+                            {{#unless isHidden}}
+                                <div class="row badge-box badge-box-progress">
+                                    <img src="{{image}}" class="badge-img-in-progress col-md-3" alt="Badge">
+                                    <div class="col-md-9 badge-box-texts">
+                                        <div class="badge-name">{{name}}</div>
+                                        <div class="badge-task">{{task}}</div>
+                                        <div class="badge-flavor">{{flavorText}}</div>
+                                    </div>
+                                    <div class="badge-progress">{{getInProgressBadgeProgress @root.viewedUser id}}</div>
+                                </div>
+                            {{/unless}}
+                        {{/each}}
+                        {{#each badgesInProgress}}
+                            {{#if isHidden}}
+                                <div class="row badge-box badge-box-progress">
+                                    <img src="{{getHiddenBadgeImagePath @root.viewedUser id}}" class="badge-img-in-progress col-md-3" alt="Badge">
+                                    <div class="col-md-9 badge-box-texts">
+                                        <div class="badge-name">{{name}}</div>
+                                        <div class="badge-flavor">{{flavorText}}</div>
+                                    </div>
+                                    <div class="badge-progress">{{getInProgressBadgeProgress @root.viewedUser id}}</div>
+                                </div>
+                            {{/if}}
+                        {{/each}}
+                    {{/if}}
+                </div> <!-- /.col-md-12 -->
+            </div> <!-- /.row -->
+
+            <hr>
+            <div class="row">
+                <div class="col-md-12">
+                    <h3>{{__ "Finished lessons"}}</h3>
+
+                    {{#if projects}}
+                        {{#each projects}}
+                            <div class="panel panel-default">
+                                <div class="panel-heading">{{ title }}</div>
+                                <div class="panel-body">
+                                    {{#each lessons}}
+                                        <h5>{{title}}</h5>
+                                        <ul class="list-group">
+                                            {{#each assignments}}
+                                                <li class="list-group-item" id="{{ ../hash }}-{{name}}">
+                                                    <small>
+                                                        <a href="/lessons/{{../../name}}/{{ ../hash }}/{{ assignmentIndex }}">
+                                                            {{ title }}
+                                                        </a>
+                                                        <span class="text-muted" title="{{formatShortDisplayableDateTimeWithoutSeconds createdAt}}">
+                                                            | {{formatShortDisplayableDate createdAt}}
+                                                        </span>
+                                                        <span>
+                                                            | {{ value }}
+                                                        </span>
+                                                    </small>
+                                                </li>
+                                            {{/each}}
+                                        </ul>
+                                    {{/each}}
+                                </div>
+                            </div> <!-- /.panel -->
+                        {{/each}}
+                    {{else}}
+                        <p class="text-center">{{__ "Welcome to your profile page. You didn't finish your first lesson. Please click the \"Go to the next lesson!\" button above for your first lesson."}}</p>
+                    {{/if}}
+                </div> <!-- /.col-md-12 -->
+            </div> <!-- /.row -->
+
+            <hr>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="well text-center">
+                        {{#if @root.user.isAdmin }}
+                            {{__ "Viewing profile of %s %s" viewedUser.personalData.familyName viewedUser.personalData.givenName }} |
+                            {{# if viewedUser.slack.email }}<i class="fa fa-slack"></i>{{viewedUser.slack.email}}<br>{{/if}}
+                            {{# if viewedUser.local.email }}<i class="fa fa-envelope-o"></i>{{viewedUser.local.email}}<br>{{/if}}
+                            {{# if viewedUser.github.email }}<i class="fa fa-github"></i>{{viewedUser.github.email}}<br>{{/if}}
+                            {{# if viewedUser.facebook.email }}<i class="fa fa-facebook-official"></i>{{viewedUser.facebook.email}}<br>{{/if}}
+                            {{# if viewedUser.google.email }}<i class="fa fa-google-plus-square"></i>{{viewedUser.google.email}}<br>{{/if}}
+                            {{__ "You are logged in as %s %s" user.personalData.familyName user.personalData.givenName }} | {{user.personalData.email}}<br>
+                        {{else}}
+                            {{# if user.slack.email }}<i class="fa fa-slack"></i>{{user.slack.email}}<br>{{/if}}
+                            {{# if user.local.email }}<i class="fa fa-envelope-o"></i>{{user.local.email}}<br>{{/if}}
+                            {{# if user.github.email }}<i class="fa fa-github"></i>{{user.github.email}}<br>{{/if}}
+                            {{# if user.facebook.email }}<i class="fa fa-facebook-official"></i>{{user.facebook.email}}<br>{{/if}}
+                            {{# if user.google.email }}<i class="fa fa-google-plus-square"></i>{{user.google.email}}<br>{{/if}}
+                            <i class="fa fa-user"></i>{{user.personalData.familyName}} {{user.personalData.givenName}}<br>
+                        {{/if}}
+                    </div> <!-- /.well -->
+                </div> <!-- /.col-md-12 -->
+            </div> <!-- /.row -->
+        </div> <!-- /.col-md-12 -->
+    </div> <!-- /.row -->
+</div> <!-- /.container -->
+
+{{> project-navigation }}
+{{> buy-now-modal }}
+
+<script type="text/javascript">
+    var anchorText = (window.location.href.indexOf("#") > -1) ? window.location.href.substring(window.location.href.indexOf("#")+1) : null;
+    if (anchorText) {
+        var anchor = $('#' + anchorText);
+        $('html, body').animate({scrollTop: anchor.offset().top - 100}, 400);
+    }
+    const unlockedBadgeBoxes = $('.badge-box-unlocked');
+    unlockedBadgeBoxes.click(function() {
+        if($(this).hasClass('clicked')) {
+            $(this).removeClass('clicked');
+        } else {
+            unlockedBadgeBoxes.removeClass('clicked');
+            $(this).addClass('clicked');
+        }
+    })
+
+</script>
